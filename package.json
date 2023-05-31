@@ -1,0 +1,88 @@
+{
+  "name": "gpt-code-optimizer",
+  "displayName": "gpt-code-optimizer",
+  "description": "Use the power of AI to optimize your code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "GPT Code Optimizer",
+      "properties": {
+        "gptCodeOptimizer.secretApiKey": {
+          "type": "string",
+          "scope": "window",
+          "default": "YOUR_OPENAI_API_KEY",
+          "markdownDescription": "Put your OpenAI API Secret Key here, you cant use the extension without this. If you dont have one, [sign up for an account here](https://platform.openai.com/signup?launch)"
+        },
+        "gptCodeOptimizer.modelType": {
+          "type": "string",
+          "scope": "window",
+          "default": "gpt-3.5-turbo",
+          "description": "The AI model you want to use. Default is gpt-3.5-turbo and is the only option for most, but if youre a part of the GPT-4 beta you should be able to use gpt-4 and gpt-4-32k as well"
+        },
+        "gptCodeOptimizer.promptSetup": {
+          "type": "string",
+          "scope": "window",
+          "default": "Optimize the following code and keep the response as short as possible while still providing helpful comments:\n",
+          "description": "The prompt that primes GPT for a response to the code it will be analyzing. Use prompt engineering to get the most of of this"
+        },
+        "gptCodeOptimizer.temperature": {
+          "type": "number",
+          "scope": "window",
+          "default": 0.6,
+          "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic."
+        },
+        "gptCodeOptimizer.maxTokens": {
+          "type": "integer",
+          "scope": "window",
+          "default": 4096,
+          "description": "The maximum length of GPTs response in prompt tokens, use less tokens to save money per response. The max number of tokens allowed depends on the model, but gpt-3.5-turbo is capped at 4096."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "gpt-code-optimizer.optimizeCode",
+        "title": "Optimize Code"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.78.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "@vscode/test-electron": "^2.3.0",
+    "eslint": "^8.39.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.4",
+    "webpack": "^5.81.0",
+    "webpack-cli": "^5.0.2"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "openai": "^3.2.1"
+  }
+}
