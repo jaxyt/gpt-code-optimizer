@@ -9,40 +9,42 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:gpt-code-optimizer.optimizeCode"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
       "title": "GPT Code Optimizer",
       "properties": {
-        "gptCodeOptimizer.secretApiKey": {
+        "gpt-code-optimizer.secretApiKey": {
           "type": "string",
           "scope": "window",
           "default": "YOUR_OPENAI_API_KEY",
           "markdownDescription": "Put your OpenAI API Secret Key here, you cant use the extension without this. If you dont have one, [sign up for an account here](https://platform.openai.com/signup?launch)"
         },
-        "gptCodeOptimizer.modelType": {
+        "gpt-code-optimizer.modelType": {
           "type": "string",
           "scope": "window",
           "default": "gpt-3.5-turbo",
           "description": "The AI model you want to use. Default is gpt-3.5-turbo and is the only option for most, but if youre a part of the GPT-4 beta you should be able to use gpt-4 and gpt-4-32k as well"
         },
-        "gptCodeOptimizer.promptSetup": {
+        "gpt-code-optimizer.promptSetup": {
           "type": "string",
           "scope": "window",
           "default": "Optimize the following code and keep the response as short as possible while still providing helpful comments:\n",
           "description": "The prompt that primes GPT for a response to the code it will be analyzing. Use prompt engineering to get the most of of this"
         },
-        "gptCodeOptimizer.temperature": {
+        "gpt-code-optimizer.temperature": {
           "type": "number",
           "scope": "window",
           "default": 0.6,
           "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic."
         },
-        "gptCodeOptimizer.maxTokens": {
+        "gpt-code-optimizer.maxTokens": {
           "type": "integer",
           "scope": "window",
-          "default": 4096,
+          "default": 1000,
           "description": "The maximum length of GPTs response in prompt tokens, use less tokens to save money per response. The max number of tokens allowed depends on the model, but gpt-3.5-turbo is capped at 4096."
         }
       }
