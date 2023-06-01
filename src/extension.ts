@@ -5,6 +5,8 @@ let configuration = null;
 
 let openai = null;
 
+let isCommandRunning = false; // Flag to indicate whether the command is currently running
+
 function getActiveEditorContent(): string | null {
 	const editor = vscode.window.activeTextEditor;
 	return editor ? editor.document.getText() : null;
@@ -34,12 +36,32 @@ export function activate(context: vscode.ExtensionContext) {
 	openai = new OpenAIApi(configuration);
 
 	let disposable = vscode.commands.registerCommand('gpt-code-optimizer.optimizeCode', async () => {
+		if (isCommandRunning) {
+			// If the command is already running, do nothing
+			return;
+		}
+
+		isCommandRunning = true; // Set the flag to indicate that the command is running
+
 		const code = getActiveEditorContent();
 		if (code) {
-			const optimizedCode = await getOptimizedCode(code);
-			// const optimizedCode = code;
-			openNewTabWithOptimizedCode(optimizedCode);
+			// Show a loading bar while the code is being optimized
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: "Optimizing code...",
+				cancellable: false
+			}, async (progress) => {
+				try {
+					const optimizedCode = await getOptimizedCode(code);
+					openNewTabWithOptimizedCode(optimizedCode);
+				} catch (error) {
+					// If an error occurs, show an error message to the user
+					vscode.window.showErrorMessage('An error occurred while optimizing the code. Please try again.');
+				}
+			});
 		}
+
+		isCommandRunning = false; // Reset the flag when the command is finished
 	});
 	context.subscriptions.push(disposable);
 }

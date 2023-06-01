@@ -54,6 +54,14 @@
         "command": "gpt-code-optimizer.optimizeCode",
         "title": "Optimize Code"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "gpt-code-optimizer.optimizeCode",
+        "key": "ctrl+shift+/",
+        "mac": "cmd+shift+/",
+"when": "editorTextFocus"
+      }
     ]
   },
   "scripts": {
