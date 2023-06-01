@@ -28,12 +28,16 @@ async function openNewTabWithOptimizedCode(optimizedCode: string) {
 	await vscode.window.showTextDocument(doc, { preserveFocus: true, preview: true, viewColumn: vscode.ViewColumn.Beside });
 }
 
-export function activate(context: vscode.ExtensionContext) {
+function initializeOpenAI() {
 	configuration = new Configuration({
 		apiKey: vscode.workspace.getConfiguration('gpt-code-optimizer').secretApiKey,
 	});
 	
 	openai = new OpenAIApi(configuration);
+}
+
+export function activate(context: vscode.ExtensionContext) {
+	initializeOpenAI();
 
 	let disposable = vscode.commands.registerCommand('gpt-code-optimizer.optimizeCode', async () => {
 		if (isCommandRunning) {
@@ -64,6 +68,14 @@ export function activate(context: vscode.ExtensionContext) {
 		isCommandRunning = false; // Reset the flag when the command is finished
 	});
 	context.subscriptions.push(disposable);
+
+	// Listen for changes in the settings
+	vscode.workspace.onDidChangeConfiguration((e) => {
+		if (e.affectsConfiguration('gpt-code-optimizer')) {
+			// If the settings for this extension have changed, reinitialize OpenAI
+			initializeOpenAI();
+		}
+	});
 }
 
 export function deactivate() {}
