@@ -1,11 +1,35 @@
 import * as vscode from 'vscode';
+import axios from 'axios';
 import { Configuration, OpenAIApi, CreateChatCompletionRequest } from "openai";
 
 let configuration = null;
-
 let openai = null;
+let licenseKey = null;
+let isLicenseValid = false;
+
+const promptSetupConfig = vscode.workspace.getConfiguration('gpt-code-optimizer').inspect('promptSetup');
+const defaultPrompt = promptSetupConfig?.defaultValue;
+const modelTypeConfig = vscode.workspace.getConfiguration('gpt-code-optimizer').inspect('modelType');
+const defaultModel = modelTypeConfig?.defaultValue;
+const temperatureConfig = vscode.workspace.getConfiguration('gpt-code-optimizer').inspect('temperature');
+const defaultTemp = temperatureConfig?.defaultValue;
+
+let promptSetup = defaultPrompt;
+let modelType = defaultModel;
+let temperature = defaultTemp;
 
 let isCommandRunning = false; // Flag to indicate whether the command is currently running
+
+async function validateLicenseKey(licenseKey: string): Promise<boolean> {
+	// try {
+	//   const response = await axios.post('https://your-api.com/validate-license', { licenseKey });
+	//   return response.data.isValid;
+	// } catch (error) {
+	//   console.error('Error validating license key:', error);
+	//   return false;
+	// }
+	return false;
+}
 
 function getActiveEditorContent(): string | null {
 	const editor = vscode.window.activeTextEditor;
@@ -14,9 +38,9 @@ function getActiveEditorContent(): string | null {
 
 async function getOptimizedCode(code: string): Promise<string> {
 	const completionRequest: CreateChatCompletionRequest = {
-	  model: vscode.workspace.getConfiguration('gpt-code-optimizer').modelType,
-	  messages: [{role: "user", content: `${vscode.workspace.getConfiguration('gpt-code-optimizer').promptSetup}${code}`}],
-	  temperature: vscode.workspace.getConfiguration('gpt-code-optimizer').temperature,
+	  model: `${modelType}`,
+	  messages: [{role: "user", content: `${promptSetup}${code}`}],
+	  temperature: parseFloat(`${temperature}`),
 	  max_tokens: vscode.workspace.getConfiguration('gpt-code-optimizer').maxTokens
 	};
 	const response = await openai.createChatCompletion(completionRequest);
@@ -29,6 +53,43 @@ async function openNewTabWithOptimizedCode(optimizedCode: string) {
 }
 
 function initializeOpenAI() {
+	licenseKey = vscode.workspace.getConfiguration('gpt-code-optimizer').licenseKey;
+	if (licenseKey !== ''){
+		validateLicenseKey(licenseKey)
+		.then(res=>{
+			if (res === true) {
+				isLicenseValid = true;
+				modelType = vscode.workspace.getConfiguration('gpt-code-optimizer').modelType;
+				promptSetup = vscode.workspace.getConfiguration('gpt-code-optimizer').promptSetup;
+				temperature = vscode.workspace.getConfiguration('gpt-code-optimizer').temperature;
+				vscode.window.showInformationMessage('License key verified. Advanced settings enabled');
+			} else {
+				isLicenseValid = false;
+				promptSetup = defaultPrompt;
+				modelType = defaultModel;
+				temperature = defaultTemp;
+				vscode.window.showErrorMessage('Invalid license key. Please enter a valid license key to use advanced features.');
+			}
+		})
+		.catch(err=>{
+			isLicenseValid = false;
+			promptSetup = defaultPrompt;
+			modelType = defaultModel;
+			temperature = defaultTemp;
+			vscode.window.showErrorMessage('Something went wrong while validating your license key');
+		});
+	} else {
+		isLicenseValid = false;
+		promptSetup = defaultPrompt;
+		modelType = defaultModel;
+		temperature = defaultTemp;
+		const options: vscode.MessageOptions = { detail: 'To unlock advanced settings, a license key is required. To purchase one click Ok', modal: true };
+		vscode.window.showInformationMessage("You are using the basic version of GPT Code Optimizer.", options, ...["Ok"]).then((item)=>{
+			console.log(item);
+		});
+	}
+	
+
 	configuration = new Configuration({
 		apiKey: vscode.workspace.getConfiguration('gpt-code-optimizer').secretApiKey,
 	});

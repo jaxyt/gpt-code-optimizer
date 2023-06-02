@@ -17,6 +17,12 @@
     "configuration": {
       "title": "GPT Code Optimizer",
       "properties": {
+        "gpt-code-optimizer.licenseKey": {
+          "type": "string",
+          "scope": "window",
+          "default": "",
+          "description": "Enter your license key here to unlock advanced features."
+        },
         "gpt-code-optimizer.secretApiKey": {
           "type": "string",
           "scope": "window",
